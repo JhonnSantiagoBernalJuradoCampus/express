@@ -1,17 +1,24 @@
-import {Router, express} from "express";
-//* Llamar una variable como el archivo
-
-const appExpress = express();
+import dotenv from "dotenv";
+import mysql from 'mysql2';
+import {Router} from "express";
 const storageCampus = Router();
 
+dotenv.config();
+let con = undefined;
+
+storageCampus.use((req,res,next)=>{
+    let my_config = JSON.parse(process.env.MY_CONNECT);
+    con = mysql.createPool(my_config);
+    next();
+})
+
 storageCampus.get("/", (req,res)=>{
-    res.send("Soy get");
-})
-storageCampus.post("/", (req,res)=>{
-    res.send("Soy el post")
-})
-storageCampus.put("/", (req,res)=>{
-    res.send("Soy el put")
+    con.query(
+        /*sql*/`SELECT * FROM tb_client`,
+        (err,data,fil)=>{
+            res.send(JSON.stringify(data));
+        }
+    )
 })
 
 export default storageCampus;
